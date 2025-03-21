@@ -50,6 +50,10 @@ class MainViewModel(
         }
     }
 
+    fun setLoginStateValue (value: LoginState) {
+        _loginState.value = value
+    }
+
     // Fetch items function
     fun getItems() {
         viewModelScope.launch {

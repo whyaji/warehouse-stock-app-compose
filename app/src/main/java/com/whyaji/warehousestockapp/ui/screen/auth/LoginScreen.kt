@@ -58,6 +58,9 @@ fun LoginScreen(viewModel: MainViewModel) {
             is MainViewModel.LoginState.Error -> {
                 Text(text = state.message, color = Color.Red)
             }
+            is MainViewModel.LoginState.Success -> {
+                Text(text = "Login success")
+            }
             MainViewModel.LoginState.Loading -> {
                 CircularProgressIndicator()
             }

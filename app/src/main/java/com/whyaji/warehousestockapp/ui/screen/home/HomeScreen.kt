@@ -21,7 +21,7 @@ import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 
 @Composable
-fun ListScreen(viewModel: MainViewModel) {
+fun HomeScreen(viewModel: MainViewModel) {
     val itemsState = viewModel.itemsState.collectAsState()
     val logoutState = viewModel.logoutState.collectAsState()
 
@@ -56,6 +56,9 @@ fun ListScreen(viewModel: MainViewModel) {
         when (logoutState.value) {
             MainViewModel.LogoutState.Loading -> {
                 CircularProgressIndicator()
+            }
+            MainViewModel.LogoutState.Success -> {
+                Text("Logout success")
             }
             else -> {}
         }

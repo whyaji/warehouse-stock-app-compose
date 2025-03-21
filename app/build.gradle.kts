@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -69,11 +70,17 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
+    // JSON serialization library, works with the Kotlin serialization plugin
+    implementation(libs.kotlinx.serialization.json)
+
     // Security
-    implementation(libs.androidx.security.crypto)
+    implementation(libs.tink.android)
 
     // room
     implementation(libs.androidx.room.runtime)

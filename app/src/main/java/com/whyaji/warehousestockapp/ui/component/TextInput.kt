@@ -34,6 +34,8 @@ fun TextInput(
     isEmailTf: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
     visibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     nextFocusRequester: FocusRequester? = null,
     isLast: Boolean = false,
@@ -60,13 +62,14 @@ fun TextInput(
             onValueChange = onValueChange,
             label = label,
             singleLine = true,
+            placeholder = placeholder,
             visualTransformation = if (isPasswordTf && !visibility.value) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             shape = RoundedCornerShape(8.dp),
             leadingIcon = leadingIcon,
             isError = errorMessage.isNotEmpty(),
-            trailingIcon = if (!isPasswordTf) null else {
+            trailingIcon = if (!isPasswordTf) trailingIcon else {
                 @Composable {
                     val image = if (visibility.value)
                         Icons.Filled.Visibility
@@ -80,7 +83,7 @@ fun TextInput(
                         Icon(imageVector  = image, description)
                     }
                 }
-            },
+            }
         )
 
         if (errorMessage.isNotEmpty()) {

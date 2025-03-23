@@ -130,7 +130,7 @@ class MainViewModel(
     val itemsState: StateFlow<ItemsState> = _itemsState
 
     // Fetch items function
-    fun getItems() {
+    fun getItems(searchQuery: String = "") {
         viewModelScope.launch {
             _itemsState.value = ItemsState.Loading
             val response = itemRepository.getItems()
@@ -138,6 +138,7 @@ class MainViewModel(
                 val items = response.body()?.data
                 if (items != null) {
                     _itemsState.value = ItemsState.Success(items)
+                    items.map { itemRepository.insertItem(it) }
                 } else {
                     _itemsState.value = ItemsState.Error("No items found")
                 }
@@ -147,9 +148,15 @@ class MainViewModel(
         }
     }
 
-    fun getAllItems() {
+    fun getAllItems(searchQuery: String = "") {
         viewModelScope.launch {
-            itemRepository.getAllItems()
+            _itemsState.value = ItemsState.Loading
+            try {
+                val items = itemRepository.getAllItems(searchQuery)
+                _itemsState.value = ItemsState.Success(items)
+            } catch (e: Exception) {
+                _itemsState.value = ItemsState.Error("Failed to get items: ${e.message}")
+            }
         }
     }
 
@@ -169,6 +176,12 @@ class MainViewModel(
     fun updateItem(item: Item) {
         viewModelScope.launch {
             itemRepository.updateItem(item)
+        }
+    }
+
+    fun clearItems() {
+        viewModelScope.launch {
+            itemRepository.clearItems()
         }
     }
 

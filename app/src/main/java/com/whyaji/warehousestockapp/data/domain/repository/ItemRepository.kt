@@ -4,8 +4,6 @@ import com.whyaji.warehousestockapp.data.api.ApiService
 import com.whyaji.warehousestockapp.data.local.dao.ItemDao
 import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.model.ItemsResponse
-import com.whyaji.warehousestockapp.model.LoginRequest
-import com.whyaji.warehousestockapp.model.LoginResponse
 import retrofit2.Response
 
 class ItemRepository(
@@ -20,8 +18,8 @@ class ItemRepository(
         itemDao.insert(item)
     }
 
-    suspend fun getAllItems(): List<Item> {
-        return itemDao.getAllItems()
+    suspend fun getAllItems(search: String): List<Item> {
+        return itemDao.getAllItems(search)
     }
 
     suspend fun deleteItem(itemId: Int) {
@@ -35,5 +33,9 @@ class ItemRepository(
             item.stock,
             item.unit
         )
+    }
+
+    suspend fun clearItems() {
+        itemDao.clearItems()
     }
 }

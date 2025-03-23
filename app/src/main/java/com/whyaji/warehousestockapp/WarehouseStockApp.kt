@@ -1,24 +1,26 @@
 package com.whyaji.warehousestockapp
 
-import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.whyaji.warehousestockapp.data.api.ApiService
-import com.whyaji.warehousestockapp.data.domain.repository.Repository
+import com.whyaji.warehousestockapp.data.domain.repository.AuthRepository
+import com.whyaji.warehousestockapp.data.domain.repository.ItemRepository
 import com.whyaji.warehousestockapp.data.interceptor.AuthInterceptor
 import com.whyaji.warehousestockapp.data.local.database.AppDatabase
 import com.whyaji.warehousestockapp.data.local.preference.TokenManager
 import com.whyaji.warehousestockapp.ui.navigation.Navigation
-import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.whyaji.warehousestockapp.ui.theme.WarehouseStockAppTheme
+import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 
 @Composable
-fun WarehouseStockApp(context: Context) {
+fun WarehouseStockApp() {
+    val context = LocalContext.current
     val tokenManager = TokenManager(context)
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor(tokenManager))
@@ -33,12 +35,14 @@ fun WarehouseStockApp(context: Context) {
         .build()
         .create(ApiService::class.java)
     val database = AppDatabase.getDatabase(context)
-    val repository = Repository(apiService, database.itemDao())
-    val viewModel = MainViewModel(repository, tokenManager)
+
+    val authRepository = AuthRepository(apiService, database.userDao())
+    val itemRepository = ItemRepository(apiService, database.itemDao())
+    val mainViewModel = MainViewModel(authRepository, itemRepository, tokenManager)
 
     WarehouseStockAppTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            Navigation(viewModel, isTokenEmpty = (tokenManager.getToken() == ""))
+            Navigation(mainViewModel, isAuthenticated = tokenManager.getToken().isNotEmpty())
         }
     }
 }

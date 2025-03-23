@@ -8,15 +8,10 @@ import com.whyaji.warehousestockapp.model.LoginRequest
 import com.whyaji.warehousestockapp.model.LoginResponse
 import retrofit2.Response
 
-class Repository(
+class ItemRepository(
     private val apiService: ApiService,
     private val itemDao: ItemDao
 ) {
-
-    suspend fun login(request: LoginRequest): Response<LoginResponse> {
-        return apiService.login(request)
-    }
-
     suspend fun getItems(): Response<ItemsResponse> {
         return apiService.getItems()
     }

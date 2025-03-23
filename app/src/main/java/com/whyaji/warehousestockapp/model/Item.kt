@@ -3,7 +3,7 @@ package com.whyaji.warehousestockapp.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "item")
 data class Item(
     @PrimaryKey
     val id: Int,

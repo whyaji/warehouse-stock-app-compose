@@ -5,12 +5,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 import com.whyaji.warehousestockapp.data.local.dao.ItemDao
+import com.whyaji.warehousestockapp.data.local.dao.UserDao
 import com.whyaji.warehousestockapp.model.Item
+import com.whyaji.warehousestockapp.model.UserData
 
-@Database(entities = [Item::class], version = 1, exportSchema = false)
+@Database(entities = [Item::class, UserData::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile

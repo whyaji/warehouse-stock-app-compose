@@ -1,4 +1,4 @@
-package com.whyaji.warehousestockapp.ui.screen.home
+package com.whyaji.warehousestockapp.ui.screen.main.screen.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,12 +21,11 @@ import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 
 @Composable
-fun HomeScreen(viewModel: MainViewModel) {
-    val itemsState = viewModel.itemsState.collectAsState()
-    val logoutState = viewModel.logoutState.collectAsState()
+fun HomeScreen(mainViewModel: MainViewModel) {
+    val itemsState = mainViewModel.itemsState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getItems()
+        mainViewModel.getItems()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -34,7 +33,7 @@ fun HomeScreen(viewModel: MainViewModel) {
             is MainViewModel.ItemsState.Success -> {
                 LazyColumn {
                     items(state.items) { item ->
-                        ListItem(item = item, onDelete = { viewModel.deleteItem(item.id) })
+                        ListItem(item = item, onDelete = { mainViewModel.deleteItem(item.id) })
                     }
                 }
             }
@@ -43,22 +42,6 @@ fun HomeScreen(viewModel: MainViewModel) {
             }
             MainViewModel.ItemsState.Loading -> {
                 CircularProgressIndicator()
-            }
-            else -> {}
-        }
-
-        Button(onClick = {
-            viewModel.logout()
-        }) {
-            Text("Logout")
-        }
-
-        when (logoutState.value) {
-            MainViewModel.LogoutState.Loading -> {
-                CircularProgressIndicator()
-            }
-            MainViewModel.LogoutState.Success -> {
-                Text("Logout success")
             }
             else -> {}
         }

@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.whyaji.warehousestockapp.constant.units
 import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.ui.component.DropDown
 import com.whyaji.warehousestockapp.ui.component.TextInput
@@ -53,7 +54,6 @@ fun UpdateItemScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Uni
     var itemNameFocusRequester = remember { FocusRequester() }
     var stockFocusRequester = remember { FocusRequester() }
 
-    val units = listOf("kg", "g", "pcs", "l", "ml", "roll", "pack", "box")
     var expanded = remember { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
 

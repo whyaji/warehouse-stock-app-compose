@@ -12,6 +12,9 @@ interface ItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: Item)
 
+    @Query("INSERT INTO item (item_name, stock, unit) VALUES (:item_name, :stock, :unit)")
+    suspend fun addItem(item_name: String, stock: String, unit: String)
+
     @Query("SELECT * FROM item WHERE item_name LIKE '%' || :search || '%'")
     suspend fun getAllItems(search: String): List<Item>
 

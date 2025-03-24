@@ -22,6 +22,10 @@ class ItemRepository(
         itemDao.insert(item)
     }
 
+    suspend fun addItem(item_name: String, stock: String, unit: String) {
+        itemDao.addItem(item_name, stock, unit)
+    }
+
     suspend fun getAllItems(search: String): List<Item> {
         return itemDao.getAllItems(search)
     }

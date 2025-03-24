@@ -45,7 +45,8 @@ fun DropDown(
                     .fillMaxWidth()
                     .menuAnchor(),
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                isError = errorMessage.isNotEmpty()
             )
 
             if (errorMessage.isNotEmpty()) {

@@ -167,7 +167,6 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
 
             when (val state = deleteState.value) {
                 is MainViewModel.DeleteState.Success -> {
-                    backPress()
                     viewModel.setDeleteStateValue(
                         MainViewModel.DeleteState.Idle
                     )

@@ -192,6 +192,12 @@ class MainViewModel(
         }
     }
 
+    fun addItem(item_name: String, stock: String, unit: String) {
+        viewModelScope.launch {
+            itemRepository.addItem(item_name, stock, unit)
+        }
+    }
+
     fun getItem(itemId: Int) {
         viewModelScope.launch {
             _itemState.value = ItemState.Loading

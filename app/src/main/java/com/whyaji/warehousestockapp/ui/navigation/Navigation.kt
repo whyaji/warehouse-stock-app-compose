@@ -10,6 +10,7 @@ import androidx.navigation.toRoute
 import com.whyaji.warehousestockapp.ui.screen.auth.LoginScreen
 import com.whyaji.warehousestockapp.ui.screen.detail.DetailScreen
 import com.whyaji.warehousestockapp.ui.screen.main.navigation.MainNavigation
+import com.whyaji.warehousestockapp.ui.screen.additem.AddItemScreen
 import com.whyaji.warehousestockapp.ui.screen.updateitem.UpdateItemScreen
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
@@ -29,6 +30,9 @@ data class DetailScreen(
 data class UpdateItemScreen(
     val itemId: Int
 )
+
+@Serializable
+data object AddItemScreen
 
 @Composable
 fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
@@ -83,6 +87,9 @@ fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
         composable<UpdateItemScreen> {
             val args = it.toRoute<UpdateItemScreen>()
             UpdateItemScreen(mainViewModel, itemId = args.itemId, backPress = { backPress() })
+        }
+        composable<AddItemScreen> {
+            AddItemScreen(mainViewModel, backPress = { backPress() })
         }
     }
 }

@@ -3,6 +3,7 @@ package com.whyaji.warehousestockapp.ui.screen.main.screen.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -91,7 +92,9 @@ fun HomeScreen(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit) {
             }
         )
 
-        LazyColumn {
+        LazyColumn (
+            contentPadding = PaddingValues(bottom = 64.dp)
+        ){
             items(items.value) { item ->
                 ItemCard(item = item, onClick = {
                     navigateTo(DetailScreen(itemId = item.id))

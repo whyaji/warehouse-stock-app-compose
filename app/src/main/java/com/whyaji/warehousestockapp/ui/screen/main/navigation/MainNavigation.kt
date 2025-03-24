@@ -1,16 +1,25 @@
 package com.whyaji.warehousestockapp.ui.screen.main.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.whyaji.warehousestockapp.ui.component.BottomNavigationBar
-import com.whyaji.warehousestockapp.ui.screen.main.screen.additem.AddItemScreen
+import com.whyaji.warehousestockapp.ui.navigation.AddItemScreen
 import com.whyaji.warehousestockapp.ui.screen.main.screen.checkout.CheckoutScreen
 import com.whyaji.warehousestockapp.ui.screen.main.screen.home.HomeScreen
 import com.whyaji.warehousestockapp.ui.screen.main.screen.profile.ProfileScreen
@@ -24,19 +33,28 @@ data object HomeScreen
 data object CheckoutScreen
 
 @Serializable
-data object AddItemScreen
-
-@Serializable
 data object ProfileScreen
 
 @Composable
 fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, backPress: () -> Unit) {
     val navController = rememberNavController()
+    var currentIndex = remember { mutableIntStateOf(0) }
 
-    Scaffold (
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
+        bottomBar = { BottomNavigationBar(navController = navController, {
+            currentIndex.intValue = it
+        }) },
+        floatingActionButton = @Composable {
+            if (currentIndex.intValue == 0) {
+                FloatingActionButton(
+                    onClick = { navigateTo(AddItemScreen) }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Item")
+                }
+            }
+        }
+    ) { paddingValues ->
 
         val graph =
             navController.createGraph(startDestination = HomeScreen) {
@@ -46,17 +64,15 @@ fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, back
                 composable<CheckoutScreen> {
                     CheckoutScreen()
                 }
-                composable<AddItemScreen> {
-                    AddItemScreen()
-                }
                 composable<ProfileScreen> {
                     ProfileScreen(mainViewModel)
                 }
             }
+
         NavHost(
             navController = navController,
             graph = graph,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(paddingValues)
         )
 
     }

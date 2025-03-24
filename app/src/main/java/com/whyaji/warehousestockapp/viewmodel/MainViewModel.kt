@@ -125,9 +125,33 @@ class MainViewModel(
         data class Error(val message: String) : UserState()
     }
 
+    // home search query
+    private val _homeSearchQuery = MutableStateFlow("")
+    val homeSearchQuery: StateFlow<String> = _homeSearchQuery
+
+    fun setHomeSearchQuery(query: String) {
+        _homeSearchQuery.value = query
+    }
+
+    private val _refreshHome = MutableStateFlow(false)
+    val refreshHome: StateFlow<Boolean> = _refreshHome
+
+    fun setRefreshHome(value: Boolean) {
+        _refreshHome.value = value
+    }
+
     // State for items list
     private val _itemsState = MutableStateFlow<ItemsState>(ItemsState.Idle)
     val itemsState: StateFlow<ItemsState> = _itemsState
+
+    private val _items = MutableStateFlow<List<Item>>(emptyList())
+    val items: StateFlow<List<Item>> = _items
+
+    private val _itemState = MutableStateFlow<ItemState>(ItemState.Idle)
+    val itemState: StateFlow<ItemState> = _itemState
+
+    private val _deleteState = MutableStateFlow<DeleteState>(DeleteState.Idle)
+    val deleteState: StateFlow<DeleteState> = _deleteState
 
     // Fetch items function
     fun getItems(searchQuery: String = "") {
@@ -138,6 +162,7 @@ class MainViewModel(
                 val items = response.body()?.data
                 if (items != null) {
                     _itemsState.value = ItemsState.Success(items)
+                    _items.value = items
                     items.map { itemRepository.insertItem(it) }
                 } else {
                     _itemsState.value = ItemsState.Error("No items found")
@@ -153,6 +178,7 @@ class MainViewModel(
             _itemsState.value = ItemsState.Loading
             try {
                 val items = itemRepository.getAllItems(searchQuery)
+                _items.value = items
                 _itemsState.value = ItemsState.Success(items)
             } catch (e: Exception) {
                 _itemsState.value = ItemsState.Error("Failed to get items: ${e.message}")
@@ -166,10 +192,32 @@ class MainViewModel(
         }
     }
 
+    fun getItem(itemId: Int) {
+        viewModelScope.launch {
+            _itemState.value = ItemState.Loading
+            try {
+                val item = itemRepository.getItem(itemId)
+                if (item != null) {
+                    _itemState.value = ItemState.Success(item)
+                } else {
+                    _itemState.value = ItemState.Error("No item found")
+                }
+            } catch (e: Exception) {
+                _itemState.value = ItemState.Error("Failed to get item: ${e.message}")
+            }
+        }
+    }
+
 
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
-            itemRepository.deleteItem(itemId)
+            _deleteState.value = DeleteState.Loading
+            try {
+                itemRepository.deleteItem(itemId)
+                _deleteState.value = DeleteState.Success
+            } catch (e: Exception) {
+                _deleteState.value = DeleteState.Error("Failed to delete item: ${e.message}")
+            }
         }
     }
 
@@ -191,5 +239,19 @@ class MainViewModel(
         object Loading : ItemsState()
         data class Success(val items: List<Item>) : ItemsState()
         data class Error(val message: String) : ItemsState()
+    }
+
+    sealed class ItemState {
+        object Idle : ItemState()
+        object Loading : ItemState()
+        data class Success(val item: Item) : ItemState()
+        data class Error(val message: String) : ItemState()
+    }
+
+    sealed class DeleteState {
+        object Idle : DeleteState()
+        object Loading : DeleteState()
+        object Success : DeleteState()
+        data class Error(val message: String) : DeleteState()
     }
 }

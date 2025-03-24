@@ -6,7 +6,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.whyaji.warehousestockapp.ui.screen.auth.LoginScreen
+import com.whyaji.warehousestockapp.ui.screen.detail.DetailScreen
 import com.whyaji.warehousestockapp.ui.screen.main.navigation.MainNavigation
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
@@ -16,6 +18,11 @@ data object LoginScreen
 
 @Serializable
 data object MainScreen
+
+@Serializable
+data class DetailScreen(
+    val itemId: Int
+)
 
 @Composable
 fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
@@ -41,6 +48,14 @@ fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
         }
     }
 
+    fun navigateTo(route: Any) {
+        navController.navigate(route)
+    }
+
+    fun backPress() {
+        navController.popBackStack()
+    }
+
     NavHost(
         navController = navController,
         startDestination = if (!isAuthenticated) LoginScreen else MainScreen,
@@ -49,7 +64,15 @@ fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
             LoginScreen(viewModel = mainViewModel)
         }
         composable<MainScreen> {
-            MainNavigation(mainViewModel)
+            MainNavigation(mainViewModel, navigateTo = {
+                navigateTo(it)
+            }, backPress = {
+                backPress()
+            })
+        }
+        composable<DetailScreen> {
+            val args = it.toRoute<DetailScreen>()
+            DetailScreen(mainViewModel, itemId = args.itemId, backPress = { backPress() })
         }
     }
 }

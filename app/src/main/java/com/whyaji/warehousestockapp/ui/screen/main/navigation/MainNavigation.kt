@@ -30,7 +30,7 @@ data object AddItemScreen
 data object ProfileScreen
 
 @Composable
-fun MainNavigation(mainViewModel: MainViewModel) {
+fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, backPress: () -> Unit) {
     val navController = rememberNavController()
 
     Scaffold (
@@ -41,7 +41,7 @@ fun MainNavigation(mainViewModel: MainViewModel) {
         val graph =
             navController.createGraph(startDestination = HomeScreen) {
                 composable<HomeScreen> {
-                    HomeScreen(mainViewModel)
+                    HomeScreen(mainViewModel, navigateTo)
                 }
                 composable<CheckoutScreen> {
                     CheckoutScreen()

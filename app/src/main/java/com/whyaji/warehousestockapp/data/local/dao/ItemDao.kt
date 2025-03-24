@@ -15,6 +15,9 @@ interface ItemDao {
     @Query("SELECT * FROM item WHERE item_name LIKE '%' || :search || '%'")
     suspend fun getAllItems(search: String): List<Item>
 
+    @Query("SELECT * FROM item WHERE id = :itemId")
+    suspend fun getItem(itemId: Int): Item?
+
     @Query("DELETE FROM item WHERE id = :itemId")
     suspend fun deleteItem(itemId: Int)
 

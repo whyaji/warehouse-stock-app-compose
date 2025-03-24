@@ -16,46 +16,59 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.ui.component.TextInput
+import com.whyaji.warehousestockapp.ui.navigation.DetailScreen
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(mainViewModel: MainViewModel) {
+fun HomeScreen(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit) {
     val itemsState = mainViewModel.itemsState.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
+    val items = mainViewModel.items.collectAsState()
+    val searchQuery = mainViewModel.homeSearchQuery.collectAsState().value
+    val refreshing = mainViewModel.refreshHome.collectAsState().value
+    val setRefreshing = mainViewModel::setRefreshHome
 
-    LaunchedEffect(searchQuery) {
-        delay(500)
+    fun onRefresh() {
         mainViewModel.getAllItems(searchQuery)
     }
 
+    LaunchedEffect(refreshing) {
+        if (refreshing) {
+            onRefresh()
+            setRefreshing(false)
+        }
+    }
+
+    LaunchedEffect(searchQuery) {
+        delay(500)
+        onRefresh()
+    }
+
     LaunchedEffect(Unit) {
-        mainViewModel.getItems(searchQuery)
+        if (items.value.isEmpty()) {
+            mainViewModel.getItems(searchQuery)
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TextInput(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = { mainViewModel.setHomeSearchQuery(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -71,21 +84,22 @@ fun HomeScreen(mainViewModel: MainViewModel) {
                         modifier = Modifier
                             .padding(8.dp)
                             .clickable {
-                                searchQuery = ""
+                                mainViewModel.setHomeSearchQuery("")
                             }
                     )
                 }
             }
         )
 
-        when (val state = itemsState.value) {
-            is MainViewModel.ItemsState.Success -> {
-                LazyColumn {
-                    items(state.items) { item ->
-                        ItemCard(item = item, onClick = {  }, onAdd = {  })
-                    }
-                }
+        LazyColumn {
+            items(items.value) { item ->
+                ItemCard(item = item, onClick = {
+                    navigateTo(DetailScreen(itemId = item.id))
+                }, onAdd = {  })
             }
+        }
+
+        when (val state = itemsState.value) {
             is MainViewModel.ItemsState.Error -> {
                 Text(
                     text = state.message,
@@ -130,14 +144,8 @@ fun ItemCard(item: Item, onClick: () -> Unit, onAdd : () -> Unit) {
                 )
             }
             // Button add to cart
-            Button(
-                onClick = onAdd,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add to cart"
-                )
+            IconButton(onClick = onAdd) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
     }

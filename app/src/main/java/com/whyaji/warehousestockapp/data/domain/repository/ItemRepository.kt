@@ -14,6 +14,10 @@ class ItemRepository(
         return apiService.getItems()
     }
 
+    suspend fun getItem(itemId: Int): Item? {
+        return itemDao.getItem(itemId)
+    }
+
     suspend fun insertItem(item: Item) {
         itemDao.insert(item)
     }

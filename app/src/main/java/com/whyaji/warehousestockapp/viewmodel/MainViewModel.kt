@@ -17,6 +17,21 @@ class MainViewModel(
     private val itemRepository: ItemRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
+    // back stack boolean
+    private val _backStack = MutableStateFlow(false)
+    val backStack: StateFlow<Boolean> = _backStack
+
+    fun setBackStack(value: Boolean) {
+        _backStack.value = value
+    }
+
+    // navigate to
+    private val _routeNavigate = MutableStateFlow<Any?>(null)
+    val routeNavigate: StateFlow<Any?> = _routeNavigate
+
+    fun setNavigateTo(value: Any?) {
+        _routeNavigate.value = value
+    }
 
     // State for login success/failure
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -157,6 +172,7 @@ class MainViewModel(
     fun getItems(searchQuery: String = "") {
         viewModelScope.launch {
             _itemsState.value = ItemsState.Loading
+            itemRepository.clearItems()
             val response = itemRepository.getItems()
             if (response.isSuccessful) {
                 val items = response.body()?.data

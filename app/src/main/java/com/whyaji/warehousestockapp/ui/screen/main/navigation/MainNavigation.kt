@@ -36,7 +36,7 @@ data object CheckoutScreen
 data object ProfileScreen
 
 @Composable
-fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, backPress: () -> Unit) {
+fun MainNavigation(mainViewModel: MainViewModel) {
     val navController = rememberNavController()
     var currentIndex = remember { mutableIntStateOf(0) }
 
@@ -48,7 +48,7 @@ fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, back
         floatingActionButton = @Composable {
             if (currentIndex.intValue == 0) {
                 FloatingActionButton(
-                    onClick = { navigateTo(AddItemScreen) }
+                    onClick = { mainViewModel.setNavigateTo(AddItemScreen) }
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Item")
                 }
@@ -59,7 +59,7 @@ fun MainNavigation(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit, back
         val graph =
             navController.createGraph(startDestination = HomeScreen) {
                 composable<HomeScreen> {
-                    HomeScreen(mainViewModel, navigateTo)
+                    HomeScreen(mainViewModel)
                 }
                 composable<CheckoutScreen> {
                     CheckoutScreen()

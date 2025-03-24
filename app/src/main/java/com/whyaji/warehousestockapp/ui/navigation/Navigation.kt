@@ -58,12 +58,20 @@ fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
         }
     }
 
-    fun navigateTo(route: Any) {
-        navController.navigate(route)
+    val isBackStack = mainViewModel.backStack.collectAsState().value
+    LaunchedEffect(isBackStack) {
+        if (isBackStack) {
+            navController.popBackStack()
+            mainViewModel.setBackStack(false)
+        }
     }
 
-    fun backPress() {
-        navController.popBackStack()
+    val routeNavigate = mainViewModel.routeNavigate.collectAsState().value
+    LaunchedEffect(routeNavigate) {
+        if (routeNavigate != null) {
+            navController.navigate(routeNavigate)
+            mainViewModel.setNavigateTo(null)
+        }
     }
 
     NavHost(
@@ -74,22 +82,18 @@ fun Navigation(mainViewModel: MainViewModel, isAuthenticated: Boolean) {
             LoginScreen(viewModel = mainViewModel)
         }
         composable<MainScreen> {
-            MainNavigation(mainViewModel, navigateTo = {
-                navigateTo(it)
-            }, backPress = {
-                backPress()
-            })
+            MainNavigation(mainViewModel)
         }
         composable<DetailScreen> {
             val args = it.toRoute<DetailScreen>()
-            DetailScreen(mainViewModel, itemId = args.itemId, backPress = { backPress() }, navigateTo = { navigateTo(it) })
+            DetailScreen(mainViewModel, itemId = args.itemId)
         }
         composable<UpdateItemScreen> {
             val args = it.toRoute<UpdateItemScreen>()
-            UpdateItemScreen(mainViewModel, itemId = args.itemId, backPress = { backPress() })
+            UpdateItemScreen(mainViewModel, itemId = args.itemId)
         }
         composable<AddItemScreen> {
-            AddItemScreen(mainViewModel, backPress = { backPress() })
+            AddItemScreen(mainViewModel)
         }
     }
 }

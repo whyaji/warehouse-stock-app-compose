@@ -33,7 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddItemScreen(viewModel: MainViewModel, backPress: () -> Unit = {}) {
+fun AddItemScreen(viewModel: MainViewModel) {
     val focusManager = LocalFocusManager.current
     var itemName = remember { mutableStateOf("") }
     var stock = remember { mutableStateOf("") }
@@ -61,7 +61,7 @@ fun AddItemScreen(viewModel: MainViewModel, backPress: () -> Unit = {}) {
         CoroutineScope(Dispatchers.Main).launch {
             snackBarHostState.showSnackbar("Item added successfully")
         }
-        backPress()
+        viewModel.setBackStack(true)
     }
 
     Surface (
@@ -71,7 +71,9 @@ fun AddItemScreen(viewModel: MainViewModel, backPress: () -> Unit = {}) {
             topBar = {
                 TopAppBar(
                     title = "Add Item",
-                    backPress
+                    backPress = {
+                        viewModel.setBackStack(true)
+                    }
                 )
             },
             snackbarHost = { SnackbarHost(snackBarHostState) },

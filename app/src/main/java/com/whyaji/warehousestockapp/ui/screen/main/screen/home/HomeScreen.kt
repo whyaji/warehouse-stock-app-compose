@@ -1,6 +1,5 @@
 package com.whyaji.warehousestockapp.ui.screen.main.screen.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,8 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -31,13 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.whyaji.warehousestockapp.model.Item
-import com.whyaji.warehousestockapp.ui.component.TextInput
+import com.whyaji.warehousestockapp.ui.component.SearchInput
 import com.whyaji.warehousestockapp.ui.navigation.DetailScreen
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit) {
+fun HomeScreen(mainViewModel: MainViewModel) {
     val itemsState = mainViewModel.itemsState.collectAsState()
     val items = mainViewModel.items.collectAsState()
     val searchQuery = mainViewModel.homeSearchQuery.collectAsState().value
@@ -61,43 +59,32 @@ fun HomeScreen(mainViewModel: MainViewModel, navigateTo: (Any) -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        if (items.value.isEmpty()) {
-            mainViewModel.getItems(searchQuery)
-        }
+        onRefresh()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TextInput(
-            value = searchQuery,
-            onValueChange = { mainViewModel.setHomeSearchQuery(it) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            isLast = true,
-            placeholder = @Composable { Text("Search items...") },
-            leadingIcon = @Composable { Icon(Icons.Default.Search, contentDescription = "Search") },
-            trailingIcon = @Composable {
-                if (searchQuery.isNotEmpty()) {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "Clear",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable {
-                                mainViewModel.setHomeSearchQuery("")
-                            }
-                    )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            IconButton(
+                onClick = {
+                    mainViewModel.getItems(searchQuery)
                 }
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
             }
-        )
+            SearchInput(
+                searchQuery = searchQuery,
+                onSearchQueryChange = { mainViewModel.setHomeSearchQuery(it) }
+            )
+        }
 
         LazyColumn (
-            contentPadding = PaddingValues(bottom = 64.dp)
+            contentPadding = PaddingValues(bottom = 64.dp),
         ){
             items(items.value) { item ->
                 ItemCard(item = item, onClick = {
-                    navigateTo(DetailScreen(itemId = item.id))
+                    mainViewModel.setNavigateTo(DetailScreen(itemId = item.id))
                 }, onAdd = {  })
             }
         }

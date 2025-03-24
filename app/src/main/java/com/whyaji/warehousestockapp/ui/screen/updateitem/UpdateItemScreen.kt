@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateItemScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = {}) {
+fun UpdateItemScreen(viewModel: MainViewModel, itemId: Int) {
     val focusManager = LocalFocusManager.current
     val itemState = viewModel.itemState.collectAsState().value
     var itemName = remember { mutableStateOf("") }
@@ -79,14 +79,14 @@ fun UpdateItemScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Uni
                 unit = unit.value
             )
         )
-        backPress()
+        viewModel.setBackStack(true)
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = "Update Item",
-                backPress = backPress
+                backPress = { viewModel.setBackStack(true) }
             )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },

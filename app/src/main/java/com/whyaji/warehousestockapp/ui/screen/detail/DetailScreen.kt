@@ -32,7 +32,7 @@ import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = {}, navigateTo: (Any) -> Unit) {
+fun DetailScreen(viewModel: MainViewModel, itemId: Int) {
     val itemState = viewModel.itemState.collectAsState()
     val deleteState = viewModel.deleteState.collectAsState()
 
@@ -44,7 +44,9 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
         topBar = {
             TopAppBar(
                 title = "Detail Item",
-                backPress = backPress
+                backPress = {
+                    viewModel.setBackStack(true)
+                }
             )
         }
     ) { paddingValues ->
@@ -133,7 +135,7 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
                             onClick = {
                                 viewModel.deleteItem(itemId)
                                 visibleAlertDelete.value = false
-                                backPress()
+                                viewModel.setBackStack(true)
                             }
                         ) {
                             Text("Delete")
@@ -156,7 +158,7 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
             // Edit Button
             Button(
                 onClick = {
-                    navigateTo(UpdateItemScreen(itemId = itemId))
+                    viewModel.setNavigateTo(UpdateItemScreen(itemId = itemId))
                 },
                 modifier = Modifier
                     .fillMaxWidth()

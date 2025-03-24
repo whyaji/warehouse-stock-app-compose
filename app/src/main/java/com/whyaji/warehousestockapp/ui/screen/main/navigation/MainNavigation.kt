@@ -1,6 +1,5 @@
 package com.whyaji.warehousestockapp.ui.screen.main.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -9,9 +8,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -42,9 +39,14 @@ fun MainNavigation(mainViewModel: MainViewModel) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavigationBar(navController = navController, {
-            currentIndex.intValue = it
-        }) },
+        bottomBar = {
+            BottomNavigationBar(
+                mainViewModel, navController,
+                {
+                    currentIndex.intValue = it
+                },
+            )
+        },
         floatingActionButton = @Composable {
             if (currentIndex.intValue == 0) {
                 FloatingActionButton(
@@ -62,7 +64,7 @@ fun MainNavigation(mainViewModel: MainViewModel) {
                     HomeScreen(mainViewModel)
                 }
                 composable<CheckoutScreen> {
-                    CheckoutScreen()
+                    CheckoutScreen(mainViewModel)
                 }
                 composable<ProfileScreen> {
                     ProfileScreen(mainViewModel)

@@ -3,8 +3,11 @@ package com.whyaji.warehousestockapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.whyaji.warehousestockapp.data.domain.repository.AuthRepository
+import com.whyaji.warehousestockapp.data.domain.repository.CartRepository
 import com.whyaji.warehousestockapp.data.domain.repository.ItemRepository
 import com.whyaji.warehousestockapp.data.local.preference.TokenManager
+import com.whyaji.warehousestockapp.model.CartItem
+import com.whyaji.warehousestockapp.model.CartItemWithItem
 import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.model.LoginRequest
 import com.whyaji.warehousestockapp.model.UserData
@@ -15,6 +18,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val authRepository: AuthRepository,
     private val itemRepository: ItemRepository,
+    private val cartRepository: CartRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
     // back stack boolean
@@ -202,12 +206,6 @@ class MainViewModel(
         }
     }
 
-    fun insertItem(item: Item) {
-        viewModelScope.launch {
-            itemRepository.insertItem(item)
-        }
-    }
-
     fun addItem(item_name: String, stock: String, unit: String) {
         viewModelScope.launch {
             itemRepository.addItem(item_name, stock, unit)
@@ -278,5 +276,74 @@ class MainViewModel(
         object Loading : DeleteState()
         object Success : DeleteState()
         data class Error(val message: String) : DeleteState()
+    }
+
+    private val _cartItems = MutableStateFlow<List<CartItemWithItem>>(emptyList())
+    val cartItems: StateFlow<List<CartItemWithItem>> = _cartItems
+
+    private val _cartItemRefresh = MutableStateFlow(true)
+    val cartItemRefresh: StateFlow<Boolean> = _cartItemRefresh
+
+    fun setCartItemRefresh(value: Boolean) {
+        _cartItemRefresh.value = value
+    }
+
+    fun insertCartItem(itemId: Int) {
+        viewModelScope.launch {
+            val cartItem = cartRepository.getFromItemId(itemId)
+            val item = itemRepository.getItem(itemId)
+            if (cartItem != null && item != null) {
+                if (cartItem.quantity + 1 > item.stock.toInt()) {
+                    return@launch
+                }
+                cartRepository.update(cartItem.copy(quantity = cartItem.quantity + 1))
+            } else if (item != null && item.stock.toInt() > 0) {
+                cartRepository.insert(itemId, 1)
+            }
+            _cartItemRefresh.value = true
+        }
+    }
+
+    fun updateCartItem(cartItem: CartItem) {
+        viewModelScope.launch {
+            cartRepository.update(cartItem)
+            _cartItemRefresh.value = true
+        }
+    }
+
+    fun deleteCartItem(cartItemId: Int) {
+        viewModelScope.launch {
+            cartRepository.delete(cartItemId)
+            _cartItemRefresh.value = true
+        }
+    }
+
+    fun getAllCartItems() {
+        viewModelScope.launch {
+            try {
+                val cartItems = cartRepository.getAllWithItems()
+                _cartItems.value = cartItems
+            } catch (e: Exception) {
+                _cartItems.value = emptyList()
+            }
+        }
+    }
+
+    fun checkOutCartItems() {
+        viewModelScope.launch {
+            try {
+                val cartItems = cartRepository.getAllWithItems()
+                for (
+                    cartItem in cartItems
+                ) {
+                    val item = cartItem.item
+                    itemRepository.updateItem(item.copy(stock = (item.stock.toInt() - cartItem.cartItem.quantity).toString()))
+                    cartRepository.delete(cartItem.cartItem.id)
+                }
+                _cartItems.value = emptyList()
+                _cartItemRefresh.value = true
+            } catch (e: Exception) {
+            }
+        }
     }
 }

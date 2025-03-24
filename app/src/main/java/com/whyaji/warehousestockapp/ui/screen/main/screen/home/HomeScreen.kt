@@ -85,7 +85,9 @@ fun HomeScreen(mainViewModel: MainViewModel) {
             items(items.value) { item ->
                 ItemCard(item = item, onClick = {
                     mainViewModel.setNavigateTo(DetailScreen(itemId = item.id))
-                }, onAdd = {  })
+                }, onAdd = {
+                    mainViewModel.insertCartItem(item.id)
+                })
             }
         }
 

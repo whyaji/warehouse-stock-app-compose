@@ -8,30 +8,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.whyaji.warehousestockapp.ui.component.TopAppBar
+import com.whyaji.warehousestockapp.ui.navigation.UpdateItemScreen
 import com.whyaji.warehousestockapp.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = {}) {
+fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = {}, navigateTo: (Any) -> Unit) {
     val itemState = viewModel.itemState.collectAsState()
     val deleteState = viewModel.deleteState.collectAsState()
 
@@ -42,15 +43,8 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = @Composable { Text("Detail Screen", style = MaterialTheme.typography.headlineSmall) },
-                navigationIcon = @Composable {
-                    IconButton(onClick = backPress) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
+                title = "Detail Item",
+                backPress = backPress
             )
         }
     ) { paddingValues ->
@@ -113,9 +107,11 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            var visibleAlertDelete = remember { mutableStateOf(false) }
+
             // Delete Button
             Button(
-                onClick = { viewModel.deleteItem(itemId) },
+                onClick = { visibleAlertDelete.value = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -124,9 +120,57 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int, backPress: () -> Unit = 
                 Text(text = "Delete", color = MaterialTheme.colorScheme.onError)
             }
 
+            if (visibleAlertDelete.value) {
+                AlertDialog(
+                    modifier = Modifier.fillMaxWidth(),
+                    onDismissRequest = {
+                        visibleAlertDelete.value = false
+                    },
+                    title = @Composable { Text("Delete Item") },
+                    confirmButton = @Composable {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            onClick = {
+                                viewModel.deleteItem(itemId)
+                                visibleAlertDelete.value = false
+                                backPress()
+                            }
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = @Composable {
+                        OutlinedButton(
+                            onClick = {
+                                visibleAlertDelete.value = false
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Edit Button
+            Button(
+                onClick = {
+                    navigateTo(UpdateItemScreen(itemId = itemId))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            ) {
+                Text(text = "Edit")
+            }
+
             when (val state = deleteState.value) {
                 is MainViewModel.DeleteState.Success -> {
                     backPress()
+                    viewModel.setDeleteStateValue(
+                        MainViewModel.DeleteState.Idle
+                    )
                 }
                 is MainViewModel.DeleteState.Error -> {
                     Text(

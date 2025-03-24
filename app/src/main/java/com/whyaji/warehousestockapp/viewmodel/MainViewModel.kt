@@ -208,7 +208,6 @@ class MainViewModel(
         }
     }
 
-
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
             _deleteState.value = DeleteState.Loading
@@ -219,6 +218,10 @@ class MainViewModel(
                 _deleteState.value = DeleteState.Error("Failed to delete item: ${e.message}")
             }
         }
+    }
+
+    fun setDeleteStateValue (value: DeleteState) {
+        _deleteState.value = value
     }
 
     fun updateItem(item: Item) {

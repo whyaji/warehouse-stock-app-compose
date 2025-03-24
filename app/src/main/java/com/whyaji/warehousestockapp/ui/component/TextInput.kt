@@ -38,6 +38,7 @@ fun TextInput(
     placeholder: @Composable (() -> Unit)? = null,
     visibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     nextFocusRequester: FocusRequester? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
     isLast: Boolean = false,
     buttonEnabled: Boolean = true,
     errorMessage: String = "",
@@ -51,7 +52,7 @@ fun TextInput(
         onDone = { if (buttonEnabled) performAction.invoke() }
     )
     val keyboardOptions = KeyboardOptions(
-        keyboardType = if (isPasswordTf) KeyboardType.Password else if (isEmailTf) KeyboardType.Email else KeyboardType.Text,
+        keyboardType = if (isPasswordTf) KeyboardType.Password else if (isEmailTf) KeyboardType.Email else keyboardType,
         imeAction = imeAction
     )
 
@@ -83,7 +84,7 @@ fun TextInput(
                         Icon(imageVector  = image, description)
                     }
                 }
-            }
+            },
         )
 
         if (errorMessage.isNotEmpty()) {

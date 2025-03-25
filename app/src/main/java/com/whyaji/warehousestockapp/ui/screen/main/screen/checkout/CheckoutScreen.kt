@@ -76,7 +76,8 @@ fun CheckoutScreen(viewModel: MainViewModel){
             onDismissRequest = {
                 visibleAlertCheckout.value = false
             },
-            title = @Composable { Text("Are you sure want checkout items") },
+            title = @Composable { Text("Checkout") },
+            text = @Composable { Text("Are you sure want checkout items?") },
             confirmButton = @Composable {
                 Button(
                     onClick = {

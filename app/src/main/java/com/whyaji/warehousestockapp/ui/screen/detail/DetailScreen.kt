@@ -124,6 +124,7 @@ fun DetailScreen(viewModel: MainViewModel, itemId: Int) {
                                         visibleAlertDelete.value = false
                                     },
                                     title = @Composable { Text("Delete Item") },
+                                    text = @Composable { Text("Are you sure want delete this item?") },
                                     confirmButton = @Composable {
                                         Button(
                                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),

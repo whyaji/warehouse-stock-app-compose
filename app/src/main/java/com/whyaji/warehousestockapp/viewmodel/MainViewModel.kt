@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.whyaji.warehousestockapp.data.domain.repository.AuthRepository
 import com.whyaji.warehousestockapp.data.domain.repository.CartRepository
+import com.whyaji.warehousestockapp.data.domain.repository.HistoryRepository
 import com.whyaji.warehousestockapp.data.domain.repository.ItemRepository
 import com.whyaji.warehousestockapp.data.local.preference.TokenManager
 import com.whyaji.warehousestockapp.model.CartItem
 import com.whyaji.warehousestockapp.model.CartItemWithItem
+import com.whyaji.warehousestockapp.model.History
 import com.whyaji.warehousestockapp.model.Item
 import com.whyaji.warehousestockapp.model.LoginRequest
 import com.whyaji.warehousestockapp.model.UserData
@@ -19,6 +21,7 @@ class MainViewModel(
     private val authRepository: AuthRepository,
     private val itemRepository: ItemRepository,
     private val cartRepository: CartRepository,
+    private val historyRepository: HistoryRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
     // back stack boolean
@@ -233,6 +236,9 @@ class MainViewModel(
             _deleteState.value = DeleteState.Loading
             try {
                 itemRepository.deleteItem(itemId)
+                cartRepository.deleteByItemId(itemId)
+                historyRepository.clearHistory(itemId)
+                _cartItemRefresh.value = true
                 _deleteState.value = DeleteState.Success
             } catch (e: Exception) {
                 _deleteState.value = DeleteState.Error("Failed to delete item: ${e.message}")
@@ -338,11 +344,26 @@ class MainViewModel(
                 ) {
                     val item = cartItem.item
                     itemRepository.updateItem(item.copy(stock = (item.stock.toInt() - cartItem.cartItem.quantity).toString()))
+                    historyRepository.addHistory(item.id, cartItem.cartItem.quantity, System.currentTimeMillis().toString())
                     cartRepository.delete(cartItem.cartItem.id)
                 }
                 _cartItems.value = emptyList()
                 _cartItemRefresh.value = true
             } catch (e: Exception) {
+            }
+        }
+    }
+
+    private val _historyItems = MutableStateFlow<List<History>>(emptyList())
+    val historyItems: StateFlow<List<History>> = _historyItems
+
+    fun getAllHistoryItems(itemId: Int) {
+        viewModelScope.launch {
+            try {
+                val historyItems = historyRepository.getAllHistoryFromItemId(itemId)
+                _historyItems.value = historyItems
+            } catch (e: Exception) {
+                _historyItems.value = emptyList()
             }
         }
     }

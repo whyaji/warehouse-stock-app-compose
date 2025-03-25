@@ -35,4 +35,8 @@ class CartRepository(
     suspend fun getWithItemFromItemId(itemId: Int): CartItemWithItem? {
         return cartDao.getWithItemFromItemId(itemId)
     }
+
+    suspend fun deleteByItemId(itemId: Int) {
+        cartDao.deleteByItemId(itemId)
+    }
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.whyaji.warehousestockapp.data.api.ApiService
 import com.whyaji.warehousestockapp.data.domain.repository.AuthRepository
 import com.whyaji.warehousestockapp.data.domain.repository.CartRepository
+import com.whyaji.warehousestockapp.data.domain.repository.HistoryRepository
 import com.whyaji.warehousestockapp.data.domain.repository.ItemRepository
 import com.whyaji.warehousestockapp.data.interceptor.AuthInterceptor
 import com.whyaji.warehousestockapp.data.local.database.AppDatabase
@@ -40,7 +41,8 @@ fun WarehouseStockApp() {
     val authRepository = AuthRepository(apiService, database.userDao())
     val itemRepository = ItemRepository(apiService, database.itemDao())
     val cartRepository = CartRepository(database.cartDao())
-    val mainViewModel = MainViewModel(authRepository, itemRepository, cartRepository, tokenManager)
+    val historyRepository = HistoryRepository(database.historyDao())
+    val mainViewModel = MainViewModel(authRepository, itemRepository, cartRepository, historyRepository, tokenManager)
 
     WarehouseStockAppTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
